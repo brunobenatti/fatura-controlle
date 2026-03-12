@@ -493,12 +493,7 @@ async function conectarControlle() {
   msg.textContent = 'Conectando...';
 
   try {
-    const proxyHeaders = {
-      'x-controlle-auth': authHeader(),
-      'x-controlle-agent': `FaturaControlle (${email})`,
-      'Content-Type': 'application/json',
-      'Accept': 'application/json'
-    };
+    const proxyHeaders = { 'Content-Type': 'application/json', 'Accept': 'application/json' };
     // Fetch categories
     const [catRes, ccRes, cardRes] = await Promise.all([
       fetch(`${PROXY_BASE}/categories`, { headers: proxyHeaders }),
@@ -756,12 +751,7 @@ async function enviarParaControlle() {
 
       const res = await fetch(`${PROXY_BASE}/transactions`, {
         method: 'POST',
-        headers: {
-          'x-controlle-auth': authHeader(),
-          'x-controlle-agent': `FaturaControlle (${state.email})`,
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify(body)
       });
 
