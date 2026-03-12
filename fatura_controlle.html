@@ -442,7 +442,7 @@ let state = {
   pdfName: ''
 };
 
-const API_BASE = 'https://api.controlle.com/rest/v3';
+const PROXY_BASE = 'https://controlle-proxy.onrender.com/api';
 
 // ─── Utilities ───────────────────────────────────────────────
 function toast(msg, type = 'info') {
@@ -493,11 +493,17 @@ async function conectarControlle() {
   msg.textContent = 'Conectando...';
 
   try {
+    const proxyHeaders = {
+      'x-controlle-auth': authHeader(),
+      'x-controlle-agent': `FaturaControlle (${email})`,
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    };
     // Fetch categories
     const [catRes, ccRes, cardRes] = await Promise.all([
-      fetch(`${API_BASE}/categories`, { headers: { 'Authorization': authHeader(), 'User-Agent': 'FaturaControlle (app@cademi.com.br)', 'Accept': 'application/json' }}),
-      fetch(`${API_BASE}/cost_centers`, { headers: { 'Authorization': authHeader(), 'User-Agent': 'FaturaControlle (app@cademi.com.br)', 'Accept': 'application/json' }}),
-      fetch(`${API_BASE}/credit_cards`, { headers: { 'Authorization': authHeader(), 'User-Agent': 'FaturaControlle (app@cademi.com.br)', 'Accept': 'application/json' }})
+      fetch(`${PROXY_BASE}/categories`, { headers: proxyHeaders }),
+      fetch(`${PROXY_BASE}/cost_centers`, { headers: proxyHeaders }),
+      fetch(`${PROXY_BASE}/credit_cards`, { headers: proxyHeaders })
     ]);
 
     if (!catRes.ok) throw new Error(`Erro ${catRes.status}: Verifique email e token`);
@@ -748,13 +754,13 @@ async function enviarParaControlle() {
       if (tx.cost_center_id) body.cost_center_id = tx.cost_center_id;
       if (tx.credit_card_id) body.credit_card_id = tx.credit_card_id;
 
-      const res = await fetch(`${API_BASE}/transactions`, {
+      const res = await fetch(`${PROXY_BASE}/transactions`, {
         method: 'POST',
         headers: {
-          'Authorization': authHeader(),
+          'x-controlle-auth': authHeader(),
+          'x-controlle-agent': `FaturaControlle (${state.email})`,
           'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'User-Agent': 'FaturaControlle (app@cademi.com.br)'
+          'Accept': 'application/json'
         },
         body: JSON.stringify(body)
       });
